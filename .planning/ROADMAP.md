@@ -104,6 +104,13 @@ A real-time market risk monitoring dashboard that detects potential market crash
 8. **Ticker config works:** User can add/remove tickers in sidebar
 9. **Auto-refresh works:** Page refreshes every 15 minutes automatically
 
+**Plans:** 3 plans
+
+**Plan list:**
+- [ ] 03-01-PLAN.md — Risk Calculator (volatility Z-score, combined risk, thresholds)
+- [ ] 03-02-PLAN.md — Charts Module (gauges, candlestick, trend lines, heatmap)
+- [ ] 03-03-PLAN.md — Dashboard Integration (sidebar, refresh, final integration)
+
 ---
 
 ## Phase 4: Alerts & Deployment
