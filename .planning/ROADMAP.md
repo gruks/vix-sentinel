@@ -60,6 +60,11 @@ A real-time market risk monitoring dashboard that detects potential market crash
 3. **Aggregate score:** Average sentiment displays as percentage or -1 to 1 score
 4. **Risk mapping works:** Negative news correctly contributes to higher risk score
 
+**Plans:** 1 plan
+
+**Plan list:**
+- [ ] 02-01-PLAN.md — Create sentiment module (analyzer.py, scorer.py)
+
 ---
 
 ## Phase 3: Risk Calculation & Dashboard UI
