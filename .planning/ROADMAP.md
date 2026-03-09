@@ -32,6 +32,12 @@ A real-time market risk monitoring dashboard that detects potential market crash
 3. **News aggregated:** All three sources (Google News, TechCrunch, HN) display headlines
 4. **No rate limit errors:** Caching prevents HN API rate limiting during 15-min refresh cycles
 
+**Plans:** 2 plans
+
+**Plan list:**
+- [x] 01-01-PLAN.md — Create data pipeline modules (data_fetcher, news_fetcher, cache)
+- [ ] 01-02-PLAN.md — Wire data pipeline to dashboard (gap closure)
+
 ---
 
 ## Phase 2: Sentiment Analysis Integration
