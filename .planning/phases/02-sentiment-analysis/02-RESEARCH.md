@@ -6,9 +6,28 @@
 
 ## Summary
 
-Phase 2 implements financial sentiment analysis using FinBERT (ProsusAI/finbert model) to analyze news headlines and map sentiment to risk contribution. The locked decision to use FinBERT is well-supported by the ecosystem—the model achieves ~89% accuracy on financial sentiment vs 76% for general-purpose models. The transformers library provides a simple pipeline API that abstracts most complexity.
+Phase 2 implements financial sentiment analysis using FinBERT to analyze news headlines and map sentiment to risk contribution. The locked decision to use FinBERT is well-supported—the model achieves ~88-93% accuracy on financial sentiment benchmarks. The transformers library provides a simple pipeline API that abstracts most complexity.
+
+**Re-research verification:** The previous research using ProsusAI/finbert remains VALID. The model has been updated with safetensors support (May 2025) and remains the industry standard. Newer alternatives (yiyanghkust/finbert-tone, Modern-FinBERT-large) exist but ProsusAI/finbert is more battle-tested and appropriate for this use case.
 
 **Primary recommendation:** Use `transformers.pipeline` with "ProsusAI/finbert" model. The pipeline returns three probabilities (positive, negative, neutral) which can be converted to a -1 to +1 sentiment score for the risk formula: `risk = 0.6*volatility + 0.4*(1-sentiment)`.
+
+## User Constraints (from project requirements)
+
+### Locked Decisions
+- Use FinBERT for sentiment analysis (finance-specific model)
+- Streamlit for UI
+- Risk formula: 0.6*volatility + 0.4*(1-sentiment)
+- Phase 1 (Data Pipeline) is complete - data modules exist
+
+### Claude's Discretion
+- Model variant selection (within FinBERT family)
+- Implementation details (pipeline vs direct model loading)
+- Caching strategy
+
+### Deferred Ideas (OUT OF SCOPE)
+- Alternative sentiment models (not needed given locked FinBERT decision)
+- LLM-based sentiment (overkill for headline analysis)
 
 ## Standard Stack
 
@@ -17,7 +36,7 @@ Phase 2 implements financial sentiment analysis using FinBERT (ProsusAI/finbert 
 |---------|---------|---------|--------------|
 | transformers | 4.40+ | Load and run FinBERT | Official Hugging Face library, de facto standard for BERT models |
 | torch | 2.0+ | PyTorch backend for model inference | Required by transformers, enables GPU acceleration |
-| ProsusAI/finbert | latest | Pre-trained financial sentiment model | Locked decision - best model for finance text |
+| ProsusAI/finbert | latest | Pre-trained financial sentiment model | Locked decision - best validated model for finance text |
 
 ### Supporting
 | Library | Version | Purpose | When to Use |
@@ -29,8 +48,9 @@ Phase 2 implements financial sentiment analysis using FinBERT (ProsusAI/finbert 
 ### Alternatives Considered
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
-| ProsusAI/finbert | cardiffnlp/twitter-roberta-base-sentiment | Not finance-specific, less accurate for financial text |
-| pipeline API | AutoModel + manual forward pass | More code, same result - pipeline is simpler |
+| ProsusAI/finbert | yiyanghkust/finbert-tone | Fine-tuned on analyst reports, slightly different use case |
+| ProsusAI/finbert | beethogedeon/Modern-FinBERT-large | Newer architecture (Feb 2025), less validated |
+| ProsusAI/finbert | DistilFinRoBERTa | More efficient but potentially less accurate |
 
 **Installation:**
 ```bash
@@ -161,8 +181,8 @@ def calculate_average_sentiment(headlines: list, pipeline) -> float:
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Financial sentiment model | Train BERT from scratch | ProsusAI/finbert | Pre-trained on financial corpus, achieves 89% accuracy |
-| Tokenization | Write custom tokenizer | AutoTokenizer.from_pretrained() | HandlesFinBERT's vocabulary, truncation, padding |
+| Financial sentiment model | Train BERT from scratch | ProsusAI/finbert | Pre-trained on financial corpus, achieves 88-93% accuracy |
+| Tokenization | Write custom tokenizer | AutoTokenizer.from_pretrained() | Handles FinBERT's vocabulary, truncation, padding |
 | Batch inference loop | Process one headline at a time | Pipeline batch processing | 10-20x faster with same GPU |
 | GPU detection | Hardcode device | torch.cuda.is_available() | Graceful CPU fallback |
 
@@ -313,14 +333,7 @@ def map_sentiment_to_risk(sentiment_score: float) -> float:
     Returns:
         Risk contribution (0.0 to 0.8)
     """
-    # Invert: negative sentiment -> higher risk
-    # sentiment=-1 -> 1-sentiment = 2 -> risk = 0.8
-    # sentiment=0 -> 1-sentiment = 1 -> risk = 0.4
-    # sentiment=1 -> 1-sentiment = 0 -> risk = 0.0
-    
-    # But wait, formula is 0.6*volatility + 0.4*(1-sentiment)
-    # So we need sentiment as 0-1 range for this
-    # Convert -1 to +1 -> 0 to 1
+    # Normalize sentiment from [-1, 1] to [0, 1]
     normalized = (sentiment_score + 1) / 2  # 0 to 1
     
     # For risk calculation: 1-sentiment where higher = more risk
@@ -361,6 +374,9 @@ def calculate_risk_score(volatility: float, sentiment_score: float) -> float:
 | VADER sentiment | FinBERT | 2020 | +15% accuracy on financial text |
 | TextBlob | FinBERT | 2020 | Better with financial jargon |
 | Generic BERT | ProsusAI/finbert | 2020 | Pre-trained on finance corpus |
+| ProsusAI/finbert (basic) | ProsusAI/finbert + safetensors | May 2025 | Faster loading, memory efficient |
+
+**Re-research finding:** ProsusAI/finbert remains the standard. Recent updates include safetensors variant support (2025). Newer models like Modern-FinBERT-large exist but are less validated for production use.
 
 **Deprecated/outdated:**
 - `pytorch_pretrained_bert`: Replaced by `transformers` library (2019+)
@@ -386,13 +402,14 @@ def calculate_risk_score(volatility: float, sentiment_score: float) -> float:
 ## Sources
 
 ### Primary (HIGH confidence)
+- Hugging Face ProsusAI/finbert - https://huggingface.co/ProsusAI/finbert
 - Hugging Face Transformers Pipeline Documentation - https://huggingface.co/docs/transformers/v4.42.0/en/main_classes/pipelines
-- ProsusAI/finbert Model Page - https://huggingface.co/ProsusAI/finbert
 - ProsusAI/finBERT GitHub - https://github.com/ProsusAI/finBERT
 
 ### Secondary (MEDIUM confidence)
-- "Step-by-Step DIY Guide: Hugging Face FinBERT AI Model Setup for News Sentiment" - DataDrivenInvestor (Dec 2025)
-- "Financial Sentiment Analysis with FinBERT" - Prosus AI Tech Blog (2020)
+- "An Analysis of Different Sentiment Analysis Models on Financial Text using Transformer" - Proceedings ICAIEHS 2025
+- "Fine-Tuning and Explaining FinBERT for Sector-Specific Financial News" - MDPI Electronics 2025
+- "Financial Sentiment Analysis Using FinBERT with Application in Predicting Stock Movement" - arXiv 2023
 
 ### Tertiary (LOW confidence)
 - Stack Overflow discussions on model caching (verified against official docs)
@@ -400,9 +417,15 @@ def calculate_risk_score(volatility: float, sentiment_score: float) -> float:
 ## Metadata
 
 **Confidence breakdown:**
-- Standard stack: HIGH - Verified via Context7/huggingface docs, ProsusAI/finbert is the standard for financial sentiment
+- Standard stack: HIGH - Verified via Hugging Face docs and recent research papers (2025), ProsusAI/finbert remains the standard
 - Architecture: HIGH - Pipeline API is well-documented, project structure follows existing pattern
 - Pitfalls: HIGH - Known issues (model download, Streamlit caching) documented across multiple sources
 
 **Research date:** 2026-03-09
 **Valid until:** 2026-04-09 (30 days - model versions are stable)
+
+**Re-research notes:**
+- Verified ProsusAI/finbert still active (safetensors variant added May 2025)
+- Confirmed Modern-FinBERT-large exists but less validated
+- finbert-tone exists but ProsusAI better suited for general financial headlines
+- Previous research APPROVED - no major changes needed
