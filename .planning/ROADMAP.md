@@ -63,7 +63,7 @@ A real-time market risk monitoring dashboard that detects potential market crash
 **Plans:** 1 plan
 
 **Plan list:**
-- [ ] 02-01-PLAN.md — Create sentiment module (analyzer.py, scorer.py)
+- [x] 02-01-PLAN.md — Create sentiment module (analyzer.py, scorer.py)
 
 ---
 
