@@ -3,6 +3,66 @@ Sentiment Scorer Module
 Maps sentiment analysis to risk contribution
 """
 from typing import List, Dict
+import streamlit as st
+
+
+@st.cache_data(ttl=3600)
+def get_sentiment_scores(news_data: Dict) -> Dict[str, float]:
+    """
+    Get sentiment scores for each ticker from news data.
+    
+    Convenience function that loads FinBERT pipeline and analyzes headlines.
+    
+    Args:
+        news_data: Dictionary with 'headlines' key containing list of news items
+                   Each item should have 'title' and 'ticker' fields
+    
+    Returns:
+        Dictionary mapping ticker to average sentiment score (0-1 scale)
+    """
+    from src.sentiment.analyzer import load_finbert_pipeline, analyze_headlines
+    from src.sentiment.scorer import calculate_average_sentiment
+    
+    if not news_data or 'headlines' not in news_data:
+        return {}
+    
+    headlines = news_data['headlines']
+    
+    if not headlines:
+        return {}
+    
+    # Group headlines by ticker
+    ticker_headlines: Dict[str, List[str]] = {}
+    for item in headlines:
+        ticker = item.get('ticker')
+        if ticker:
+            if ticker not in ticker_headlines:
+                ticker_headlines[ticker] = []
+            ticker_headlines[ticker].append(item.get('title', ''))
+    
+    # If no ticker-specific headlines, analyze all
+    if not ticker_headlines:
+        all_titles = [h.get('title', '') for h in headlines if h.get('title')]
+        if all_titles:
+            pipeline = load_finbert_pipeline()
+            analyzed = analyze_headlines(all_titles, pipeline)
+            avg_sentiment = calculate_average_sentiment(analyzed)
+            # Convert from -1 to +1 scale, to 0 to 1 scale
+            return {'overall': (avg_sentiment + 1) / 2}
+        return {}
+    
+    # Analyze headlines per ticker
+    results = {}
+    pipeline = load_finbert_pipeline()
+    
+    for ticker, titles in ticker_headlines.items():
+        if titles:
+            analyzed = analyze_headlines(titles, pipeline)
+            avg_sentiment = calculate_average_sentiment(analyzed)
+            # Convert from -1 to +1 scale to 0 to 1 scale
+            results[ticker] = (avg_sentiment + 1) / 2
+    
+    return results
 
 
 def calculate_average_sentiment(analyzed_headlines: List[Dict]) -> float:
