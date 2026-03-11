@@ -107,9 +107,9 @@ A real-time market risk monitoring dashboard that detects potential market crash
 **Plans:** 3 plans
 
 **Plan list:**
-- [ ] 03-01-PLAN.md — Risk Calculator (volatility Z-score, combined risk, thresholds)
-- [ ] 03-02-PLAN.md — Charts Module (gauges, candlestick, trend lines, heatmap)
-- [ ] 03-03-PLAN.md — Dashboard Integration (sidebar, refresh, final integration)
+- [x] 03-01-PLAN.md — Risk Calculator (volatility Z-score, combined risk, thresholds)
+- [x] 03-02-PLAN.md — Charts Module (gauges, candlestick, trend lines, heatmap)
+- [x] 03-03-PLAN.md — Dashboard Integration (sidebar, refresh, final integration)
 
 ---
 
@@ -137,6 +137,13 @@ A real-time market risk monitoring dashboard that detects potential market crash
 4. **.env.example exists:** Template shows required environment variables
 5. **App deployed:** Live URL accessible on Streamlit Cloud
 6. **Auto-refresh active:** Deployed app refreshes every 15 minutes
+
+**Plans:** 3 plans
+
+**Plan list:**
+- [ ] 04-01-PLAN.md — Email alert module and .env.example
+- [ ] 04-02-PLAN.md — Dashboard integration with sidebar toggle
+- [ ] 04-03-PLAN.md — Requirements.txt and deployment documentation
 
 ---
 
