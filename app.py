@@ -18,6 +18,8 @@ st.set_page_config(
 st_autorefresh(interval=15*60*1000, limit=None, key="dashboard_refresh")
 
 # ==================== SIDEBAR CONFIGURATION ====================
+from src.alert import send_email_alert, check_alert_cooldown, is_valid_config
+
 st.sidebar.title("Configuration")
 
 # Ticker multiselect
@@ -50,6 +52,22 @@ else:
     st.sidebar.markdown("**Tickers:** None selected")
 st.sidebar.markdown(f"**Time Range:** {time_range}")
 st.sidebar.markdown(f"**Auto-refresh:** Every 15 minutes")
+
+# Email alerts section
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Email Alerts")
+email_alerts_enabled = st.sidebar.checkbox(
+    "Enable email alerts",
+    value=False,
+    help="Send email when risk exceeds HIGH threshold (>75)"
+)
+
+# Show config status
+if email_alerts_enabled:
+    if is_valid_config():
+        st.sidebar.success("Email alerts configured")
+    else:
+        st.sidebar.warning("Email not configured - check secrets")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Data Sources")
@@ -138,6 +156,31 @@ elif alert_type == "warning":
     st.warning(f"{banner['icon']} {banner['message']}")
 else:
     st.error(f"{banner['icon']} {banner['message']}")
+
+# Check for HIGH risk and send email alert if enabled
+if email_alerts_enabled and avg_risk > 75:
+    from src.alert import send_email_alert, check_alert_cooldown
+    
+    # Check cooldown to prevent spam
+    if check_alert_cooldown(hours=1):
+        # Prepare alert details
+        tickers_str = ", ".join(selected_tickers) if selected_tickers else "N/A"
+        sent_str = f"{avg_sent:.2%}"
+        
+        # Send alert
+        success = send_email_alert(
+            risk_score=round(avg_risk, 1),
+            level=level,
+            tickers=tickers_str,
+            sentiment_summary=sent_str
+        )
+        
+        if success:
+            st.sidebar.success("High risk alert email sent!")
+        else:
+            st.sidebar.error("Failed to send alert email")
+    else:
+        st.sidebar.info("Alert on cooldown - will notify again soon")
 
 # Render 3 gauges row
 from src.charts import create_three_gauges
