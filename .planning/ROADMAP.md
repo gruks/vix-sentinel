@@ -36,7 +36,7 @@ A real-time market risk monitoring dashboard that detects potential market crash
 
 **Plan list:**
 - [x] 01-01-PLAN.md — Create data pipeline modules (data_fetcher, news_fetcher, cache)
-- [ ] 01-02-PLAN.md — Wire data pipeline to dashboard (gap closure)
+- [x] 01-02-PLAN.md — Wire data pipeline to dashboard (gap closure)
 
 ---
 
