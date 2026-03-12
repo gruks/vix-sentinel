@@ -17,6 +17,9 @@ st.set_page_config(
 # Auto-refresh setup - triggers every 15 minutes (900 seconds = 15*60*1000 ms)
 st_autorefresh(interval=15*60*1000, limit=None, key="dashboard_refresh")
 
+# Default tickers for data fetching
+DEFAULT_TICKERS = ['SPY', 'VIX', 'AAPL', 'TSLA', 'MSFT', 'NVDA', 'GOOGL']
+
 # ==================== SIDEBAR CONFIGURATION ====================
 from src.alert import send_email_alert, check_alert_cooldown, is_valid_config
 
@@ -36,6 +39,14 @@ time_range = st.sidebar.radio(
     "Time Range",
     ["1d", "7d", "30d"],
     horizontal=True
+)
+
+# Chart type selector
+chart_type = st.sidebar.radio(
+    "Chart Type",
+    ["TradingView", "Candlestick"],
+    horizontal=True,
+    help="TradingView provides professional charts with indicators. Candlestick uses Plotly."
 )
 
 # Manual refresh button
@@ -191,9 +202,21 @@ col1.plotly_chart(gauges[0], use_container_width=True)
 col2.plotly_chart(gauges[1], use_container_width=True)
 col3.plotly_chart(gauges[2], use_container_width=True)
 
-# Render candlestick chart (7-day SPY)
+# Render chart (TradingView or Candlestick)
 st.subheader("📊 Market Trend")
-if 'SPY' in historical and not historical['SPY'].empty:
+if chart_type == "TradingView":
+    from src.charts import create_tradingview_chart
+    # Map time range to TradingView interval
+    interval_map = {"1d": "5", "7d": "D", "30d": "W"}
+    tv_interval = interval_map.get(time_range, "D")
+    tv_html = create_tradingview_chart(
+        symbol="CBOE:VIX" if "VIX" in selected_tickers else "SPY",
+        interval=tv_interval,
+        height=500,
+        theme="dark"
+    )
+    st.html(tv_html)
+elif 'SPY' in historical and not historical['SPY'].empty:
     from src.charts import create_candlestick
     st.plotly_chart(create_candlestick(historical['SPY']), use_container_width=True)
 else:
@@ -240,6 +263,3 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("*Dashboard auto-refreshes every 15 minutes. Click 'Refresh Now' in sidebar to manually reload.*")
-
-if __name__ == "__main__":
-    st.run()

@@ -546,3 +546,48 @@ def create_risk_banner(risk_level: str, alert_type: str) -> Dict[str, str]:
         "icon": messages[risk_level]["icon"],
         "alert_type": alert_type
     }
+
+
+def create_tradingview_chart(
+    symbol: str = "NASDAQ:AAPL",
+    interval: str = "D",
+    height: int = 500,
+    theme: str = "dark"
+) -> str:
+    """
+    Generate HTML for TradingView free chart widget.
+    
+    Args:
+        symbol: TradingView symbol (e.g., "NASDAQ:AAPL", "CBOE:VIX", "SPY")
+        interval: Chart interval (1, 5, 15, 30, 60, D, W, M)
+        height: Chart height in pixels
+        theme: "dark" or "light"
+    
+    Returns:
+        HTML string to embed TradingView widget
+    """
+    container_id = f"tradingview_{symbol.replace(':', '_').lower()}"
+    
+    html = f"""
+    <div class="tradingview-widget-container">
+        <div id="{container_id}" style="height:{height}px"></div>
+        <script src="https://s3.tradingview.com/tv.js"></script>
+        <script>
+            new TradingView.widget({{
+                "width": "100%",
+                "height": {height},
+                "symbol": "{symbol}",
+                "interval": "{interval}",
+                "timezone": "Etc/UTC",
+                "theme": "{theme}",
+                "style": "1",
+                "container_id": "{container_id}",
+                "hide_top_toolbar": false,
+                "hide_legend": false,
+                "save_image": false,
+                "locale": "en"
+            }});
+        </script>
+    </div>
+    """
+    return html

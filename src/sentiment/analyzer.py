@@ -57,22 +57,53 @@ def analyze_headline(headline: str, pipeline) -> Dict:
         }
     
     # Get full probability distribution using topk=None
-    result = pipeline(headline, topk=None)[0]
+    result = pipeline(headline, topk=None)
+    
+    # Handle error cases
+    if result is None or isinstance(result, str) or not isinstance(result, (list, tuple)):
+        return {
+            'label': 'neutral',
+            'positive': 0.33,
+            'negative': 0.33,
+            'neutral': 0.34,
+            'score': 0.0
+        }
+    
+    result = result[0]
+    
+    # Handle case where result items are not dicts
+    if not isinstance(result, dict):
+        return {
+            'label': 'neutral',
+            'positive': 0.33,
+            'negative': 0.33,
+            'neutral': 0.34,
+            'score': 0.0
+        }
     
     # Convert list of results to dict
-    probs = {item['label']: item['score'] for item in result}
+    try:
+        probs = {item['label']: item['score'] for item in result}
+    except (TypeError, KeyError):
+        return {
+            'label': 'neutral',
+            'positive': 0.33,
+            'negative': 0.33,
+            'neutral': 0.34,
+            'score': 0.0
+        }
     
     # Calculate composite score: positive - negative (ranges -1 to +1)
-    score = probs['positive'] - probs['negative']
+    score = probs.get('positive', 0.33) - probs.get('negative', 0.33)
     
     # Determine label from highest probability
     label = max(probs, key=probs.get)
     
     return {
         'label': label,
-        'positive': probs['positive'],
-        'negative': probs['negative'],
-        'neutral': probs['neutral'],
+        'positive': probs.get('positive', 0.33),
+        'negative': probs.get('negative', 0.33),
+        'neutral': probs.get('neutral', 0.34),
         'score': score
     }
 
@@ -99,20 +130,64 @@ def analyze_headlines(headlines: List[str], pipeline) -> List[Dict]:
     
     analyzed = []
     for result in results:
-        # Convert list to dict
-        probs = {item['label']: item['score'] for item in result}
+        # Handle error cases where pipeline returns unexpected types
+        if result is None:
+            analyzed.append({
+                'label': 'neutral',
+                'positive': 0.33,
+                'negative': 0.33,
+                'neutral': 0.34,
+                'score': 0.0
+            })
+            continue
+            
+        # Handle error case where pipeline returns string instead of list
+        if isinstance(result, str):
+            analyzed.append({
+                'label': 'neutral',
+                'positive': 0.33,
+                'negative': 0.33,
+                'neutral': 0.34,
+                'score': 0.0
+            })
+            continue
+            
+        # If result is not a list, try to convert or skip
+        if not isinstance(result, (list, tuple)):
+            analyzed.append({
+                'label': 'neutral',
+                'positive': 0.33,
+                'negative': 0.33,
+                'neutral': 0.34,
+                'score': 0.0
+            })
+            continue
+            
+        # Convert list to dict - handle case where items are not dicts
+        try:
+            probs = {item['label']: item['score'] for item in result}
+        except (TypeError, KeyError):
+            # If we can't parse the result, return neutral
+            analyzed.append({
+                'label': 'neutral',
+                'positive': 0.33,
+                'negative': 0.33,
+                'neutral': 0.34,
+                'score': 0.0
+            })
+            continue
         
         # Calculate composite score
-        score = probs['positive'] - probs['negative']
+        score = probs.get('positive', 0.33) - probs.get('negative', 0.33)
         
         # Determine label
         label = max(probs, key=probs.get)
         
         analyzed.append({
             'label': label,
-            'positive': probs['positive'],
-            'negative': probs['negative'],
-            'neutral': probs['neutral'],
+            'positive': probs.get('positive', 0.33),
+            'negative': probs.get('negative', 0.33),
+            'neutral': probs.get('neutral', 0.34),
             'score': score
         })
     

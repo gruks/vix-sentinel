@@ -19,8 +19,11 @@ def fetch_market_data(tickers: List[str]) -> Dict:
     Returns:
         Dictionary with ticker data: {ticker: {price, change_pct, volume, history_df}}
     """
-    # Always include SPY and VIX
-    all_tickers = list(set(['SPY', 'VIX'] + tickers))
+    # Always include SPY and VIX (^VIX is the CBOE Volatility Index ticker)
+    ticker_map = {'SPY': 'SPY', 'VIX': '^VIX'}
+    # Use display names for the result, but actual yfinance symbols for fetching
+    display_tickers = list(set(['SPY', 'VIX'] + tickers))
+    all_tickers = [ticker_map.get(t, t) for t in display_tickers]
     
     result = {}
     
@@ -28,10 +31,10 @@ def fetch_market_data(tickers: List[str]) -> Dict:
         # Fetch data for all tickers at once
         data = yf.download(all_tickers, period="1d", progress=False)
         
-        for ticker in all_tickers:
+        for display_name, actual_ticker in zip(display_tickers, all_tickers):
             try:
-                if ticker in data.columns.get_level_values(0):
-                    ticker_data = data[ticker]
+                if actual_ticker in data.columns.get_level_values(0):
+                    ticker_data = data[actual_ticker]
                     
                     # Get the latest price
                     if len(ticker_data) > 0:
@@ -48,29 +51,29 @@ def fetch_market_data(tickers: List[str]) -> Dict:
                         else:
                             change_pct = 0
                         
-                        result[ticker] = {
+                        result[display_name] = {
                             'price': float(latest.get('Close', 0)) if pd.notna(latest.get('Close')) else 0,
                             'change_pct': round(change_pct, 2),
                             'volume': int(latest.get('Volume', 0)) if pd.notna(latest.get('Volume')) else 0,
                             'history_df': ticker_data
                         }
                     else:
-                        result[ticker] = {
+                        result[display_name] = {
                             'price': 0,
                             'change_pct': 0,
                             'volume': 0,
                             'history_df': pd.DataFrame()
                         }
                 else:
-                    result[ticker] = {
+                    result[display_name] = {
                         'price': 0,
                         'change_pct': 0,
                         'volume': 0,
                         'history_df': pd.DataFrame()
                     }
             except Exception as e:
-                print(f"Error fetching data for {ticker}: {e}")
-                result[ticker] = {
+                print(f"Error fetching data for {actual_ticker}: {e}")
+                result[display_name] = {
                     'price': 0,
                     'change_pct': 0,
                     'volume': 0,
