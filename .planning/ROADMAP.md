@@ -148,6 +148,41 @@ A real-time market risk monitoring dashboard that detects potential market crash
 
 ---
 
+## Phase 5: Frontend UI/UX Integration
+
+**Goal:** Replace Streamlit UI with React/MUI frontend for better UX and control
+
+### Requirements (8)
+
+| ID | Requirement |
+|----|-------------|
+| FE-01 | Create FastAPI backend to expose market risk data as REST API |
+| FE-02 | Integrate React frontend with backend API endpoints |
+| FE-03 | Implement skeleton loading states for async data |
+| FE-04 | Build risk gauge component with color thresholds |
+| FE-05 | Create market trend candlestick chart component |
+| FE-06 | Build news sentiment display with sentiment indicators |
+| FE-07 | Implement responsive layout for mobile/tablet |
+| FE-08 | Add auto-refresh with loading states |
+
+### Success Criteria
+
+1. **API responds:** Frontend fetches and displays risk data from backend
+2. **Skeletons show:** Loading states display while data fetches
+3. **Risk gauge works:** Risk score 0-100 displays with color coding
+4. **Charts render:** Candlestick and trend charts display market data
+5. **Responsive:** Layout adapts to mobile, tablet, and desktop
+6. **Auto-refresh:** Data updates every 15 minutes with visual indicator
+
+**Plans:** 3 plans
+
+**Plan list:**
+- [x] 05-01-PLAN.md — FastAPI backend for market risk data
+- [x] 05-02-PLAN.md — React frontend integration with API
+- [x] 05-03-PLAN.md — UI enhancements (skeletons, charts, responsive)
+
+---
+
 ## Coverage
 
 | Phase | Requirements | Coverage |
@@ -156,8 +191,9 @@ A real-time market risk monitoring dashboard that detects potential market crash
 | Phase 2 | SENT-01 to SENT-04 | 4/33 |
 | Phase 3 | RISK-01 to RISK-04, UI-01 to UI-07, CFG-01 to CFG-05 | 16/33 |
 | Phase 4 | ALRT-01 to ALRT-03, DEPL-01 to DEPL-04 | 7/33 |
+| Phase 5 | FE-01 to FE-08 | 8/33 |
 
-**Total:** 33/33 requirements mapped ✓
+**Total:** 41/41 requirements mapped ✓
 
 ---
 
