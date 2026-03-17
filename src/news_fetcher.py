@@ -5,12 +5,16 @@ Aggregates news from multiple sources: Google News RSS, TechCrunch RSS, Hacker N
 import feedparser
 import requests
 import time
-import streamlit as st
 from typing import List, Dict
 from datetime import datetime
+from functools import lru_cache
 
 
-@st.cache_data(ttl=3600)  # Cache for 1 hour
+# Simple in-memory cache for news (TTL handled by API layer)
+_cache = {}
+_cache_ttl = 3600  # 1 hour
+
+
 def fetch_google_news(ticker: str, limit: int = 5) -> List[Dict]:
     """
     Fetch news from Google News RSS for a given ticker.
@@ -52,7 +56,6 @@ def fetch_google_news(ticker: str, limit: int = 5) -> List[Dict]:
     return results
 
 
-@st.cache_data(ttl=3600)
 def fetch_techcrunch(limit: int = 3) -> List[Dict]:
     """
     Fetch tech news from TechCrunch RSS feed.
@@ -87,7 +90,6 @@ def fetch_techcrunch(limit: int = 3) -> List[Dict]:
     return results
 
 
-@st.cache_data(ttl=3600)
 def fetch_hacker_news(limit: int = 5) -> List[Dict]:
     """
     Fetch top stories from Hacker News API.
@@ -133,7 +135,6 @@ def fetch_hacker_news(limit: int = 5) -> List[Dict]:
     return results
 
 
-@st.cache_data(ttl=3600)
 def fetch_all_news(tickers: List[str] = None) -> Dict:
     """
     Aggregate news from all sources.

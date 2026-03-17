@@ -3,10 +3,8 @@ Sentiment Scorer Module
 Maps sentiment analysis to risk contribution
 """
 from typing import List, Dict
-import streamlit as st
 
 
-@st.cache_data(ttl=3600)
 def get_sentiment_scores(news_data: Dict) -> Dict[str, float]:
     """
     Get sentiment scores for each ticker from news data.

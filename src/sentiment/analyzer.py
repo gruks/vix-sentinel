@@ -3,31 +3,38 @@ FinBERT Analyzer Module
 Provides sentiment analysis using ProsusAI/finbert model
 """
 from typing import List, Dict
-import streamlit as st
 from transformers import pipeline
 import torch
 
+# Simple in-memory cache for pipeline (TTL handled by API layer)
+_finbert_pipeline = None
 
-@st.cache_resource
+
 def load_finbert_pipeline():
     """
     Load FinBERT sentiment analysis pipeline with caching.
     
-    Uses @st.cache_resource to avoid re-downloading the model
-    on each Streamlit rerun.
+    Uses simple module-level caching to avoid re-downloading the model.
     
     Returns:
         transformers.pipeline: FinBERT sentiment pipeline
     """
+    global _finbert_pipeline
+    
+    if _finbert_pipeline is not None:
+        return _finbert_pipeline
+    
     device = 0 if torch.cuda.is_available() else -1
     
-    return pipeline(
+    _finbert_pipeline = pipeline(
         "sentiment-analysis",
         model="ProsusAI/finbert",
         device=device,
         truncation=True,
         max_length=512
     )
+    
+    return _finbert_pipeline
 
 
 def analyze_headline(headline: str, pipeline) -> Dict:
