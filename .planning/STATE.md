@@ -1,14 +1,14 @@
 # State: AI Market Risk Early Warning System
 
-**Updated:** 2026-03-17T06:20:00Z
+**Updated:** 2026-03-17T07:00:00Z
 
 ## Current Position
 
 | Field | Value |
 |-------|-------|
 | **Phase** | 6 - Backend API Enhancements |
-| **Plan** | 02 (Complete) |
-| **Status** | Plan 06-02 complete |
+| **Plan** | 01 (Complete) |
+| **Status** | Plan 06-01 complete |
 | **Progress** | Phase 6 in progress |
 
 ### Phase Summary
@@ -54,6 +54,8 @@
 | 30-minute cache TTL for news articles | Balance between freshness and API load |
 | SHA256 hash of URL+title for deduplication | Prevents duplicate articles in cache |
 | Cache sentiment scores with articles | Avoids re-running sentiment analysis |
+| Time range selector with 1d/2d/10d/30d options | Allow users to view market data over different time ranges |
+| 7d as default time range | Backward compatibility with existing data |
 
 ### Research Findings
 
@@ -78,6 +80,13 @@
 | Skeleton loading states | Better UX during data fetch |
 | Fallback to mock data | Graceful degradation if API unavailable |
 
+### Phase 6: Backend API Enhancements
+
+| Decision | Rationale |
+|----------|-----------|
+| SQLite with aiosqlite for news caching | Non-blocking async database operations |
+| Time range selector in frontend | User can view 1d/2d/10d/30d market data |
+
 ## Session Continuity
 
 ### Pending Actions
@@ -95,13 +104,14 @@
 - [x] Execute Phase 5 Plan 05-01: FastAPI backend
 - [x] Execute Phase 5 Plan 05-02: React frontend API integration
 - [x] Execute Phase 5 Plan 05-03: UI enhancements & verification
+- [x] Execute Phase 6 Plan 06-01: Time range selection (1d, 2d, 10d, 30d)
 - [x] Execute Phase 6 Plan 06-02: News caching with SQLite
 
 ### Next Steps
 
 Phase 6 (Backend API Enhancements) in progress:
-- Plan 06-01: API error handling & rate limiting (next)
-- Plan 06-03: API authentication
+- Plan 06-03: API authentication (next)
+- Plan 06-04: [TBD]
 
 Project includes:
 - Streamlit dashboard (Phases 1-4)
