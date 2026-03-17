@@ -4,11 +4,43 @@ Fetches real-time market data using yfinance
 """
 import pandas as pd
 import yfinance as yf
-import streamlit as st
 from typing import Dict, List, Optional
+from datetime import datetime, timedelta
 
 
-@st.cache_data(ttl=900)  # Cache for 15 minutes
+# Mapping frontend time ranges to yfinance parameters
+# yfinance supports: 1d, 5d, 7d, 60d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max
+# For non-standard ranges (2d, 10d, 30d), use start/end with interval
+TIME_RANGE_MAP = {
+    "1d": {"period": "1d", "interval": "5m"},
+    "2d": {"start_days": 2, "interval": "15m"},
+    "5d": {"period": "5d", "interval": "15m"},
+    "7d": {"period": "5d", "interval": "15m"},  # yfinance doesn't have 7d
+    "10d": {"start_days": 10, "interval": "1h"},
+    "30d": {"start_days": 30, "interval": "1d"},
+    "1mo": {"period": "1mo", "interval": "1d"},
+    "3mo": {"period": "3mo", "interval": "1d"},
+    "6mo": {"period": "6mo", "interval": "1d"},
+    "1y": {"period": "1y", "interval": "1d"},
+}
+
+
+def _get_yfinance_params(time_range: str) -> dict:
+    """Convert frontend time_range to yfinance parameters"""
+    params = TIME_RANGE_MAP.get(time_range, TIME_RANGE_MAP["7d"])
+    
+    if "period" in params:
+        return {"period": params["period"], "interval": params["interval"]}
+    else:
+        end = datetime.now()
+        start = end - timedelta(days=params["start_days"])
+        return {
+            "start": start.strftime("%Y-%m-%d"),
+            "end": end.strftime("%Y-%m-%d"),
+            "interval": params["interval"]
+        }
+
+
 def fetch_market_data(tickers: List[str]) -> Dict:
     """
     Fetch market data for given tickers.
@@ -143,14 +175,15 @@ def fetch_historical_data(ticker: str, period: str = "7d") -> pd.DataFrame:
     
     Args:
         ticker: Stock ticker symbol
-        period: Data period (1d, 5d, 1mo, 3mo, 6mo, 1y, 5y, max)
+        period: Data period (1d, 2d, 5d, 7d, 10d, 30d, 1mo, 3mo, etc.)
     
     Returns:
         DataFrame with historical price data
     """
     try:
         stock = yf.Ticker(ticker)
-        hist = stock.history(period=period)
+        params = _get_yfinance_params(period)
+        hist = stock.history(**params)
         return hist
     except Exception as e:
         print(f"Error fetching historical data for {ticker}: {e}")
