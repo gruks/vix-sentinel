@@ -202,7 +202,7 @@ async def get_fresh_news(tickers: List[str], db: AsyncSession) -> List[NewsArtic
         .order_by(NewsArticle.fetched_at.desc())
         .limit(50)
     )
-    return result.scalars().all()
+    return list(result.scalars().all())
 
 
 @app.get("/")
