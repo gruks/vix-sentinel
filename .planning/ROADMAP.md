@@ -186,6 +186,7 @@ A real-time market risk monitoring dashboard that detects potential market crash
 ## Phase 6: Backend API Enhancements
 
 **Goal:** Add time range selection, remove Streamlit from backend, implement news caching
+**Status:** ✓ Complete (2026-03-17)
 
 ### Requirements (4)
 
@@ -206,10 +207,10 @@ A real-time market risk monitoring dashboard that detects potential market crash
 **Plans:** 4 plans
 
 **Plan list:**
-- [ ] 06-01-PLAN.md — Time session selection in frontend
-- [ ] 06-02-PLAN.md — News caching with SQLite database
-- [ ] 06-03-PLAN.md — Remove Streamlit from backend
-- [ ] 06-04-PLAN.md — Time range mapping in backend
+- [x] 06-01-PLAN.md — Time session selection in frontend
+- [x] 06-02-PLAN.md — News caching with SQLite database
+- [x] 06-03-PLAN.md — Remove Streamlit from backend
+- [x] 06-04-PLAN.md — Time range mapping in backend
 
 ---
 
