@@ -183,6 +183,36 @@ A real-time market risk monitoring dashboard that detects potential market crash
 
 ---
 
+## Phase 6: Backend API Enhancements
+
+**Goal:** Add time range selection, remove Streamlit from backend, implement news caching
+
+### Requirements (4)
+
+| ID | Requirement |
+|----|-------------|
+| BACK-01 | Add time session selection in frontend (1d, 2d, 10d, 30d) |
+| BACK-02 | Remove UI from backend - make FastAPI purely an API |
+| BACK-03 | Add news caching with database - store news, refresh only when new news arrives |
+| BACK-04 | Enhance the UI (optional) |
+
+### Success Criteria
+
+1. **Time range works:** User can select 1d, 2d, 10d, 30d and see appropriate market data
+2. **Backend clean:** FastAPI works without Streamlit installed
+3. **News cached:** News API uses SQLite database, only fetches when cache stale (>30 min)
+4. **No duplicates:** URL hashing prevents duplicate articles in database
+
+**Plans:** 4 plans
+
+**Plan list:**
+- [ ] 06-01-PLAN.md — Time session selection in frontend
+- [ ] 06-02-PLAN.md — News caching with SQLite database
+- [ ] 06-03-PLAN.md — Remove Streamlit from backend
+- [ ] 06-04-PLAN.md — Time range mapping in backend
+
+---
+
 ## Coverage
 
 | Phase | Requirements | Coverage |
@@ -192,8 +222,9 @@ A real-time market risk monitoring dashboard that detects potential market crash
 | Phase 3 | RISK-01 to RISK-04, UI-01 to UI-07, CFG-01 to CFG-05 | 16/33 |
 | Phase 4 | ALRT-01 to ALRT-03, DEPL-01 to DEPL-04 | 7/33 |
 | Phase 5 | FE-01 to FE-08 | 8/33 |
+| Phase 6 | BACK-01 to BACK-04 | 4/37 |
 
-**Total:** 41/41 requirements mapped ✓
+**Total:** 41/41 original + 4 new = 45/45 requirements mapped
 
 ---
 
